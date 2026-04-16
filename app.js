@@ -1,6 +1,6 @@
 // Build the metadata panel
 function buildMetadata(sample) {
-  d3.json("https://static.bc-edx.com/data/dl-1-2/m14/lms/starter/samples.json").then((data) => {
+  d3.json("samples.json").then((data) => {
 
     // Get the metadata field
     const metadata = data.metadata;
@@ -24,7 +24,7 @@ function buildMetadata(sample) {
 
 // Function to build both charts
 function buildCharts(sample) {
-  d3.json("https://static.bc-edx.com/data/dl-1-2/m14/lms/starter/samples.json").then((data) => {
+  d3.json("samples.json").then((data) => {
 
     // Get the samples field
     const samples = data.samples;
@@ -86,7 +86,7 @@ function buildCharts(sample) {
 
 // Function to run on page load
 function init() {
-  d3.json("https://static.bc-edx.com/data/dl-1-2/m14/lms/starter/samples.json").then((data) => {
+  d3.json("samples.json").then((data) => {
 
     // Get the names field
     const names = data.names;
