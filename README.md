@@ -1,38 +1,142 @@
-remove # belly-button-challenge
-module 14 challenge
+# Belly Button Biodiversity Dashboard
 
-Background
-This project builds an interactive dashboard to explore the Belly Button Biodiversity dataset, which catalogs the microbes that colonize human navels. The dataset shows that a small number of microbial species (OTUs) were found in over 70% of people, while others were more rare.
-Project Overview
-The goal of this project is to visualize the data using D3 and Plotly libraries to help users explore the microbial species found in different individuals. Users can select a sample ID from a dropdown menu to update the charts and view relevant data.
-Features
+[![Code Quality](https://github.com/a1990alpalo/belly-button/actions/workflows/code-quality.yml/badge.svg)](https://github.com/a1990alpalo/belly-button/actions/workflows/code-quality.yml)
 
-1. Horizontal Bar Chart
+An interactive JavaScript dashboard for exploring the Belly Button Biodiversity dataset. Select a test subject to view demographic metadata, the ten most abundant operational taxonomic units (OTUs), and the complete distribution of bacterial cultures found in that sample.
 
-- Displays the top 10 OTUs found in an individual.
-- Uses:
-  o sample_values for the bar chart values.
-  o otu_ids for the labels.
-  o otu_labels for hover text.
+## Live Dashboard
 
-2. Bubble Chart
+[Explore the Belly Button Biodiversity Dashboard](https://a1990alpalo.github.io/belly-button/)
 
-- Visualizes all OTUs in the sample.
-- Uses:
-  o otu_ids for the x-axis values.
-  o sample_values for the y-axis values and marker size.
-  o otu_ids for marker colors.
-  o otu_labels for the hover text.
+![Belly Button Biodiversity Dashboard](images/Belly%20Button%20Biodiversity%20Dashboard.png)
 
-3. Demographic Information Panel
+## Features
 
-- Displays metadata for the selected individual, such as demographic information.
+- Populates a dropdown with all available test-subject IDs.
+- Displays demographic metadata for the selected subject.
+- Shows the ten most abundant OTUs in a horizontal bar chart.
+- Visualizes all OTUs in an interactive bubble chart.
+- Updates the charts and metadata whenever a different subject is selected.
+- Loads the dataset once and reuses it for subsequent dashboard updates.
+- Displays user-friendly messages when data cannot be loaded or a subject cannot be found.
+- Uses responsive Plotly charts for different screen sizes.
 
-4. Dynamic Updating
+## Technologies
 
-- All charts and metadata dynamically update based on the selected sample ID from the dropdown menu.
-  Data Source
-  The data is read from the following URL using the D3 library:
-- samples.json
-  Deployment
-  The project is deployed on GitHub Pages for easy access.
+- HTML5
+- JavaScript
+- D3.js
+- Plotly.js
+- Bootstrap
+- Node.js and npm for local development
+- ESLint for JavaScript quality checks
+- Prettier for consistent formatting
+- GitHub Actions for continuous integration
+- GitHub Pages for deployment
+
+## How It Works
+
+1. `index.html` creates the dashboard layout and loads D3, Plotly, and `app.js`.
+2. `app.js` loads `samples.json` once during initialization.
+3. The subject IDs from the dataset populate the dropdown menu.
+4. The application finds the selected subject's metadata and sample measurements.
+5. D3 updates the demographic information panel.
+6. Plotly renders or updates the bar and bubble charts.
+7. Selecting another subject calls `optionChanged()` and refreshes the dashboard.
+
+## Dataset
+
+The included [`samples.json`](samples.json) file contains three main collections:
+
+- `names`: available test-subject IDs
+- `metadata`: demographic information for each subject
+- `samples`: OTU IDs, bacterial labels, and sample values used by the charts
+
+An operational taxonomic unit, or OTU, is a grouping used to classify closely related microorganisms.
+
+## Run Locally
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) 24 is recommended because it matches the GitHub Actions environment.
+- npm, which is included with Node.js.
+
+### Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/a1990alpalo/belly-button.git
+cd belly-button
+```
+
+Install the locked dependency versions:
+
+```bash
+npm ci
+```
+
+Start the local web server:
+
+```bash
+npm start
+```
+
+Open the following address in a browser:
+
+```text
+http://127.0.0.1:8000
+```
+
+Press `Ctrl+C` in the terminal to stop the server.
+
+## Available Commands
+
+| Command                | Purpose                                       |
+| ---------------------- | --------------------------------------------- |
+| `npm start`            | Serve the dashboard locally on port 8000.     |
+| `npm run lint`         | Check JavaScript with ESLint.                 |
+| `npm run format`       | Format supported project files with Prettier. |
+| `npm run format:check` | Verify formatting without modifying files.    |
+
+## Project Structure
+
+```text
+belly-button/
+|-- .github/workflows/code-quality.yml
+|-- images/
+|-- .gitignore
+|-- .prettierignore
+|-- .prettierrc.json
+|-- app.js
+|-- eslint.config.mjs
+|-- index.html
+|-- package-lock.json
+|-- package.json
+|-- README.md
+`-- samples.json
+```
+
+## Code Quality
+
+The GitHub Actions workflow runs automatically for pull requests targeting `main` and for pushes to `main`. It installs the locked dependencies with `npm ci`, runs ESLint, and verifies Prettier formatting.
+
+You can run the same checks locally:
+
+```bash
+npm run lint
+npm run format:check
+```
+
+## Deployment
+
+The dashboard is deployed as a static website through GitHub Pages:
+
+https://a1990alpalo.github.io/belly-button/
+
+## Author
+
+Alberto Medina
+
+- GitHub: [@a1990alpalo](https://github.com/a1990alpalo)
+- Repository: [a1990alpalo/belly-button](https://github.com/a1990alpalo/belly-button)
