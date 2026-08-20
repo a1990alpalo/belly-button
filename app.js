@@ -1,121 +1,141 @@
-// Build the metadata panel
-function buildMetadata(sample) {
-  d3.json("samples.json").then((data) => {
-    // Get the metadata field
-    const metadata = data.metadata;
+const DATA_URL = "samples.json";
 
-    // Filter the metadata for the object with the desired sample number
-    const result = metadata.filter((sampleObj) => sampleObj.id == sample)[0];
+const PLOT_CONFIG = {
+  responsive: true,
+  displaylogo: false,
+};
 
-    // Use d3 to select the panel with id of `#sample-metadata`
-    const panel = d3.select("#sample-metadata");
+let dashboardData;
 
-    // Use `.html("") to clear any existing metadata
-    panel.html("");
+// Find the metadata and sample records for one subject.
+function findSubject(sampleId) {
+  const normalizedId = String(sampleId);
 
-    // Inside a loop, append new tags for each key-value in the filtered metadata
-    Object.entries(result).forEach(([key, value]) => {
-      panel.append("h6").text(`${key.toUpperCase()}: ${value}`);
-    });
+  const metadata = dashboardData.metadata.find(
+    (sampleObject) => String(sampleObject.id) === normalizedId
+  );
+
+  const sample = dashboardData.samples.find((sampleObject) => sampleObject.id === normalizedId);
+
+  if (!metadata || !sample) {
+    throw new Error(`No data found for subject ${normalizedId}.`);
+  }
+
+  return { metadata, sample };
+}
+
+// Build the demographic information panel.
+function buildMetadata(metadata) {
+  const panel = d3.select("#sample-metadata");
+
+  panel.html("");
+
+  Object.entries(metadata).forEach(([key, value]) => {
+    panel.append("h6").text(`${key.toUpperCase()}: ${value}`);
   });
 }
 
-// Function to build both charts
+// Build the bar and bubble charts.
 function buildCharts(sample) {
-  d3.json("samples.json").then((data) => {
-    // Get the samples field
-    const samples = data.samples;
+  const { otu_ids, otu_labels, sample_values } = sample;
 
-    // Filter the samples for the object with the desired sample number
-    const result = samples.filter((sampleObj) => sampleObj.id == sample)[0];
-
-    // Get the otu_ids, otu_labels, and sample_values
-    const otu_ids = result.otu_ids;
-    const otu_labels = result.otu_labels;
-    const sample_values = result.sample_values;
-
-    // Build a Bubble Chart
-    const bubbleData = [
-      {
-        x: otu_ids,
-        y: sample_values,
-        text: otu_labels,
-        mode: "markers",
-        marker: {
-          size: sample_values,
-          color: otu_ids,
-          colorscale: "Earth",
-        },
+  const bubbleData = [
+    {
+      x: otu_ids,
+      y: sample_values,
+      text: otu_labels,
+      mode: "markers",
+      marker: {
+        size: sample_values,
+        color: otu_ids,
+        colorscale: "Earth",
       },
-    ];
+    },
+  ];
 
-    const bubbleLayout = {
-      title: "Bacteria Cultures Per Sample",
-      margin: { t: 30 },
-      hovermode: "closest",
-      xaxis: { title: "OTU ID" },
-      yaxis: { title: "Sample Values" },
-    };
+  const bubbleLayout = {
+    title: "Bacteria Cultures Per Sample",
+    margin: { t: 50 },
+    hovermode: "closest",
+    xaxis: { title: "OTU ID" },
+    yaxis: { title: "Sample Values" },
+  };
 
-    // Render the Bubble Chart
-    Plotly.newPlot("bubble", bubbleData, bubbleLayout);
+  Plotly.react("bubble", bubbleData, bubbleLayout, PLOT_CONFIG);
 
-    // For the Bar Chart, map the otu_ids to a list of strings for your yticks
-    const yticks = otu_ids
-      .slice(0, 10)
-      .map((otuID) => `OTU ${otuID}`)
-      .reverse();
+  const topOtuIds = otu_ids
+    .slice(0, 10)
+    .map((otuId) => `OTU ${otuId}`)
+    .reverse();
 
-    // Build a Bar Chart
-    const barData = [
-      {
-        y: yticks,
-        x: sample_values.slice(0, 10).reverse(),
-        text: otu_labels.slice(0, 10).reverse(),
-        type: "bar",
-        orientation: "h",
-      },
-    ];
+  const barData = [
+    {
+      y: topOtuIds,
+      x: sample_values.slice(0, 10).reverse(),
+      text: otu_labels.slice(0, 10).reverse(),
+      type: "bar",
+      orientation: "h",
+    },
+  ];
 
-    const barLayout = {
-      title: "Top 10 Bacteria Cultures Found",
-      margin: { t: 30, l: 150 },
-    };
+  const barLayout = {
+    title: "Top 10 Bacteria Cultures Found",
+    margin: { t: 50, l: 150 },
+  };
 
-    // Render the Bar Chart
-    Plotly.newPlot("bar", barData, barLayout);
-  });
+  Plotly.react("bar", barData, barLayout, PLOT_CONFIG);
 }
 
-// Function to run on page load
-function init() {
-  d3.json("samples.json").then((data) => {
-    // Get the names field
-    const names = data.names;
+// Update all dashboard components for one subject.
+function renderDashboard(sampleId) {
+  const { metadata, sample } = findSubject(sampleId);
 
-    // Use d3 to select the dropdown with id of `#selDataset`
+  buildMetadata(metadata);
+  buildCharts(sample);
+}
+
+// Display a user-friendly loading or selection error.
+function showError(message) {
+  const panel = d3.select("#sample-metadata");
+
+  panel.html("");
+  panel.append("p").attr("class", "text-danger").text(message);
+}
+
+// Run when the page loads.
+async function init() {
+  try {
+    dashboardData = await d3.json(DATA_URL);
+
+    const names = dashboardData.names;
+
+    if (!Array.isArray(names) || names.length === 0) {
+      throw new Error("The dataset does not contain any subject IDs.");
+    }
+
     const selector = d3.select("#selDataset");
 
-    // Use the list of sample names to populate the select options
-    names.forEach((sample) => {
-      selector.append("option").text(sample).property("value", sample);
+    selector.selectAll("option").remove();
+
+    names.forEach((sampleId) => {
+      selector.append("option").text(sampleId).property("value", sampleId);
     });
 
-    // Get the first sample from the list
-    const firstSample = names[0];
-
-    // Build charts and metadata panel with the first sample
-    buildCharts(firstSample);
-    buildMetadata(firstSample);
-  });
+    renderDashboard(names[0]);
+  } catch (error) {
+    console.error("Unable to initialize the dashboard:", error);
+    showError("Unable to load the dashboard data.");
+  }
 }
 
-// Function for event listener
+// Run whenever the selected subject changes.
 function optionChanged(newSample) {
-  // Build charts and metadata panel each time a new sample is selected
-  buildCharts(newSample);
-  buildMetadata(newSample);
+  try {
+    renderDashboard(newSample);
+  } catch (error) {
+    console.error("Unable to update the dashboard:", error);
+    showError("Unable to display the selected subject.");
+  }
 }
 
-// Initialize the dashboard
 init();
