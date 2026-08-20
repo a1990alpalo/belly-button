@@ -1,0 +1,30 @@
+{
+  "name": "belly-button",
+  "version": "1.0.0",
+  "description": "Interactive Plotly dashboard for exploring the Belly Button Biodiversity dataset",
+  "scripts": {
+    "start": "http-server . -p 8000 -c-1",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/a1990alpalo/belly-button.git"
+  },
+  "keywords": [],
+  "author": "Alberto Medina",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/a1990alpalo/belly-button/issues"
+  },
+  "homepage": "https://github.com/a1990alpalo/belly-button#readme",
+  "private": true,
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.1",
+    "globals": "^17.11.0",
+    "http-server": "^14.1.1",
+    "prettier": "^3.9.6"
+  }
+}
